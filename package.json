@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/miner46er/line-bot-node#readme",
   "devDependencies": {
+    "dotenv": "^6.0.0",
     "eslint": "^5.2.0",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.13.0",
@@ -26,7 +27,6 @@
   },
   "dependencies": {
     "@line/bot-sdk": "^6.1.0",
-    "dotenv": "^6.0.0",
     "express": "^4.16.3"
   }
 }
