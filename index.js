@@ -1,14 +1,18 @@
 'use strict'
 
-require('dotenv').config()
 const line = require('@line/bot-sdk')
 const express = require('express')
+
+require('dotenv').config()
 
 // create LINE SDK config
 const config = {
   channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.CHANNEL_SECRET
 }
+
+// create LINE SDK client
+const client = new line.Client(config)
 
 // create Express app
 // about Express itself: https://expressjs.com/
@@ -18,10 +22,11 @@ app.post('/webhook', line.middleware(config), (req, res) => {
   Promise
     .all(req.body.events.map(handleEvent))
     .then((result) => res.json(result))
+    .catch((err) => {
+      console.error(err)
+      res.status(500).end()
+    })
 })
-
-// create LINE SDK client
-const client = new line.Client(config)
 
 // event handler
 function handleEvent (event) {
