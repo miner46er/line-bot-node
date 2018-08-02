@@ -19,12 +19,15 @@ const client = new line.Client(config)
 const app = express()
 
 app.post('/webhook', line.middleware(config), (req, res) => {
+  // req.body.events should be an array of events
+  if (!Array.isArray(req.body.events)) {
+    return res.status(500).end()
+  }
+
+  // handle events separately
   Promise
     .all(req.body.events.map(handleEvent))
-    .then((result) => {
-      res.status(200)
-      res.json(result)
-    })
+    .then((result) => res.json(result))
     .catch((err) => {
       console.error(err)
       res.status(500).end()
@@ -33,18 +36,40 @@ app.post('/webhook', line.middleware(config), (req, res) => {
 
 // event handler
 function handleEvent (event) {
-  if (event.type !== 'message' || event.message.type !== 'text') {
-    return Promise.resolve(null)
+  switch (event.type) {
+    case 'message':
+      switch (event.message.type) {
+        case 'text':
+          return handleText(event.message, event.replyToken, event.source)
+        default:
+          throw new Error(`Unknown message: ${JSON.stringify(event.message)}`)
+      }
+    default:
+      throw new Error(`Unknown message: ${JSON.stringify(event.message)}`)
   }
+}
 
-  return client.replyMessage(event.replyToken, {
-    type: 'text',
-    text: event.message.text
-  })
+function handleText (message, replyToken, source) {
+  if (message.text.startsWith('!')) {
+    const inputMessage = (message.text.slice(1)).split(' ')
+    const inputCommand = inputMessage[0]
+    const inputArgument = inputMessage[1]
+
+    switch (inputCommand) {
+      case 'echo':
+        return client.replyMessage(replyToken, {
+          type: 'text',
+          text: inputArgument
+        })
+    }
+    /* // check whether inputCommand exist as a function
+    if (typeof window[inputCommand] === 'function') {
+      window[inputCommand](inputMessage)
+    } */
+  }
 }
 
 const port = process.env.PORT || 3000
-
 app.listen(port, () => {
   console.log(`listening on ${port}`)
 })
