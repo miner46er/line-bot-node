@@ -62,10 +62,6 @@ function handleText (message, replyToken, source) {
           text: inputArgument
         })
     }
-    /* // check whether inputCommand exist as a function
-    if (typeof window[inputCommand] === 'function') {
-      window[inputCommand](inputMessage)
-    } */
   }
 }
 
